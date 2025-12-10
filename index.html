@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<!-- Demonstration of a simplae old fashioned calculator -->
+ <!-- Also demonstrates how to use Javascript Classes -->
+<html>
+<head>
+<style>
+.container {
+  margin:auto;
+  width:600px; 
+  gap: 3px;
+  background-color: dodgerblue;
+  padding: 5px;
+  text-align: center;
+}
+
+.mainKeys {
+  display: inline-grid;
+  grid-template-columns: 100px 100px 100px 100px 100px;
+  background-color: dodgerblue;
+  padding: 10px;
+  gap: 20px;
+}
+
+.mainKeys div {
+  background-color: #f1f1f1;
+  border: 1px solid black;
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+}
+.display {
+  display: block;
+  background-color: #f1f1f1;
+  grid-template-columns: 540px;
+  border: 10px solid blue;
+  padding: 5px;
+  font-size: 50px;
+  text-align: left;
+}
+
+.memory {
+  background-color: #f1f1f1;
+  text-align: left;
+  font-size: 30px;
+}
+
+.title {
+  font-size: 40px;
+  font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+  color:black;
+  text-align: center;
+  padding: 5px;
+}
+
+.dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display:none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}
+</style>
+</head>
+<body>
+
+<div id="calcContainer" class="container">
+    <p class="title">Old Style Calculator 1.0</p>
+    <p id="disp" class="display">0</p>
+    <p id="memory" class="memory">Memory: 0</p>
+
+   <div id="calcMainKeys" class="mainKeys">
+    <div onclick="numberPress2(7)">7</div>
+    <div onclick="numberPress2(8)">8</div>
+    <div onclick="numberPress2(9)">9</div>  
+    <div onclick="myCalc.calcDisplay('Backspace')">C</div>
+    <div onclick="myCalc.calcDisplay('Clear')">AC</div>
+    <div onclick="numberPress2(4)">4</div>
+    <div onclick="numberPress2(5)">5</div>
+    <div onclick="numberPress2(6)">6</div>  
+    <div onclick="actionPress2('multiply')">*</div>
+    <div onclick="actionPress2('divide')">/</div>
+    <div onclick="numberPress2(1)">1</div>
+    <div onclick="numberPress2(2)">2</div>
+    <div onclick="numberPress2(3)">3</div>  
+    <div onclick="actionPress2('plus')">+</div>
+    <div onclick="actionPress2('minus')">-</div>
+    <div onclick="numberPress2(0)">0</div>
+    <div onclick="numberPress2('.')">.</div>
+    <div onclick="myCalc.memoryStore('store')">M</div>
+    <div onclick="myCalc.memoryStore('recall')">RCL</div>  
+    <div onclick="answerPress()">Ans</div>
+   </div>
+   <div class="dropdown">
+    <button id="cButton" class="dropbtn" onclick="myCalc.colourList()">Choose Calculator colour</button>
+    <select id="calcColour" class="dropdown-content" onchange="colourChange()" multiple>
+        <option value="DodgerBlue">Blue 1</option>
+        <option value="Blue">Blue 2</option>
+        <option value="LightGrey">Grey</option>
+        <option value="Cyan">Cyan</option>
+    </select>
+   </div>
+</div>
+<p id="test"></p>
+
+<script>
+
+const calcArray = []; // Array used to store values entered on the display
+let memoryStore = 0;  // Temporary store for numbers to be used during calculations
+let currentMathType = ""; // Store for the current action i.e. add, multiply etc
+
+// This class contains calculator related methods 
+class Calc {
+  constructor(calcColour){
+    // Colour of the Calculator
+    this._calcColour = calcColour;
+    document.getElementById("calcContainer").style.backgroundColor = this._calcColour;
+    document.getElementById("calcMainKeys").style.backgroundColor = this._calcColour
+  }  
+  // Called to manage the display contents when deleting single number with C 
+  //    or clearing all using AC
+  calcDisplay(x){
+      let displayContent = document.getElementById("disp").innerHTML;
+      if (displayContent == "0"){
+        displayContent = "";
+      }
+      switch(x){
+        case "Backspace":
+          if (displayContent.length==1){
+            document.getElementById("disp").innerHTML = "0";
+          } else {
+            document.getElementById("disp").innerHTML = displayContent.slice(0,-1);
+          }
+          break;
+        case "Clear":
+          document.getElementById("disp").innerHTML = "0";
+          memoryStore = 0;
+          document.getElementById("memory").innerHTML = "Memory: 0"
+          break;
+        default:
+          const disp = displayContent + x;
+          document.getElementById("disp").innerHTML = disp;         
+      }
+  }
+
+  // Set Calculator colour property
+  set cColour(cValue){
+    this._calcColour = cValue;
+    document.getElementById("calcContainer").style.backgroundColor = cValue;
+    document.getElementById("calcMainKeys").style.backgroundColor = cValue;
+  }
+    
+  // Get Calculator colour property
+  get cColour(){
+    return this._calcColour;
+  }
+
+  // Toggle colour change list between visible and hidden
+  colourList(){
+      document.getElementById("calcColour").classList.toggle("show");
+  }
+
+  // Add a number to the display. Pressing "." is adds a decimal point
+  numberPress(keyNo){
+    let dispNo = document.getElementById("disp").innerHTML;
+    dispNo=dispNo + keyNo;
+    let displayNo = parseFloat(dispNo);
+    if (keyNo=="."){
+      displayNo=displayNo + ".";
+    } 
+    document.getElementById("disp").innerHTML= displayNo;
+  }
+
+  // When an action key is pressed, add the current display value to the calcArray
+  //    then set the display back to 0.
+  actionPress(keyAction){
+    let dispNo = document.getElementById("disp").innerHTML;
+    calcArray.push(dispNo);
+    document.getElementById("disp").innerHTML="0";
+    currentMathType=keyAction;
+  }
+
+  // Store the current display value in the memoryStore variable 
+  //    and recall it from the same variable
+  memoryStore(action){
+    switch(action){
+      case "store":
+        memoryStore = document.getElementById("disp").innerHTML;
+        document.getElementById("memory").innerHTML = "Memory: " + memoryStore;
+        break;
+      case "recall":
+        document.getElementById("disp").innerHTML= memoryStore;
+        break;
+    }
+  }
+
+   // do the requested calculation
+  calcAnswer(mathType,calcArrayContents){
+    let myResult = 0;
+    if (mathType=="plus"){
+      const num1 = parseFloat(calcArrayContents[0]);
+      const num2 = parseFloat(calcArrayContents[1]);
+      myResult = num1 + num2;
+    } else if(mathType=="multiply"){
+      const num1 = parseFloat(calcArrayContents[0]);
+      const num2 = parseFloat(calcArrayContents[1]);
+      myResult = num1 * num2;
+    } else if(mathType=="divide"){
+      const num1 = parseFloat(calcArrayContents[0]);
+      const num2 = parseFloat(calcArrayContents[1]);
+      myResult = num1 / num2;
+    } else if(mathType=="minus"){
+      const num1 = parseFloat(calcArrayContents[0]);
+      const num2 = parseFloat(calcArrayContents[1]);
+      myResult = num1 - num2;
+    } else if(mathType=="EXP"){
+      const num1 = parseFloat(calcArrayContents[0]);
+      const num2 = parseFloat(calcArrayContents[1]);
+      myResult = Math.exp(num1,num2);
+    }
+    document.getElementById("disp").innerHTML = myResult;
+    calcArrayContents.length=0;
+  }
+}
+
+const myCalc = new Calc("dodgerblue");
+
+// Select the background colour for the Calculator from the 
+//  calcColour dropdown box
+function colourChange(){
+  const x = document.getElementById("calcColour").selectedIndex;
+  const myList = document.getElementById("calcColour").options;
+  const calcColour = myList[x].value;
+  myCalc.cColour = calcColour;
+}
+
+// Number key pressed
+function numberPress2(keyNo){
+  myCalc.numberPress(keyNo);
+}
+
+function actionPress2(keyAction){
+  myCalc.actionPress(keyAction);
+}
+
+function answerPress(){
+  let dispNo = document.getElementById("disp").innerHTML;
+  calcArray.push(dispNo);
+  //alert(calcArray.toString());
+  if (calcArray.length > 1 && currentMathType != ""){
+    myCalc.calcAnswer(currentMathType,calcArray);
+  }
+
+}
+
+function test(info){
+  document.getElementById("test").innerHTML=info;
+}
+
+</script>
+</body>
+</html>
