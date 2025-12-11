@@ -62,6 +62,31 @@
   padding: 5px;
 }
 
+/* For Tooltip prompts */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+  cursor: pointer;
+}
+
+.tooltiptext {
+  visibility: hidden;
+  font-size: 25px;
+  width: 130px;
+  background-color: lightblue;
+  color: black;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 /* For the button at the bottom that brings up a dropdown box of colours */
 .dropbtn {
   background-color: #3498DB;
@@ -85,7 +110,7 @@
 .dropdown-content {
   display:none;
   position: absolute;
-  background-color: #f1f1f1;
+  background-color: #e2dfdf;
   min-width: 160px;
   overflow: auto;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -115,8 +140,12 @@
     <div onclick="numberPress2(7)">7</div>
     <div onclick="numberPress2(8)">8</div>
     <div onclick="numberPress2(9)">9</div>  
-    <div onclick="myCalc.calcDisplay('Backspace')">C</div>
-    <div onclick="myCalc.calcDisplay('Clear')">AC</div>
+    <div onclick="myCalc.calcDisplay('Backspace')" class="tooltip">C
+      <span class="tooltiptext">Backspace by one number</span>
+    </div>
+    <div onclick="myCalc.calcDisplay('Clear')" class="tooltip">AC
+      <span class="tooltiptext">Clear all content</span>
+    </div>
     <div onclick="numberPress2(4)">4</div>
     <div onclick="numberPress2(5)">5</div>
     <div onclick="numberPress2(6)">6</div>  
@@ -129,8 +158,12 @@
     <div onclick="actionPress2('minus')">-</div>
     <div onclick="numberPress2(0)">0</div>
     <div onclick="numberPress2('.')">.</div>
-    <div onclick="myCalc.memoryStore('store')">M</div>
-    <div onclick="myCalc.memoryStore('recall')">RCL</div>  
+    <div onclick="myCalc.memoryStore('store')" class="tooltip">M
+      <span class="tooltiptext">Store current number</span>
+    </div>
+    <div onclick="myCalc.memoryStore('recall')" class="tooltip">RCL
+      <span class="tooltiptext">Recall memory contents</span>
+    </div>  
     <div onclick="answerPress()">Ans</div>
    </div>
    <div class="dropdown">
